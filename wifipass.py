@@ -16,7 +16,6 @@ from time import sleep
 
 assert ('linux' or 'windows' in sys.platform), "This script runs only Linux and Windows Systems"
 
-
 # Class of the colors to be used on the terminal screen
 class tColors:
     HEADER = '\033[95m'
@@ -25,7 +24,7 @@ class tColors:
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     BOLD = '\033[1m'
-
+# Control the root user
 if not os.getuid() == 0:
     sys.exit(tColors.FAIL + "Wifipass has to be run with root")
 
@@ -34,7 +33,7 @@ def HelloMessage():
     print(result)
 
     description = tColors.OKGREEN + """
-    This script finds your wifi passwords saved in the past(Only Linux, V1).
+    This script finds your wifi passwords saved in the past(Only Linux and Windows Systems, V1).
     
     For use: You just have to give the 'Run' command.
     
@@ -84,9 +83,8 @@ def LinuxSystems():
 
 def WinSystems():
     allNetworks = "netsh wlan show profile key=clear"
-    command = os.popen(allNetworks)
-    readCommand = command.read()
-    print("\n" + tColors.WARNING + readCommand)
+    command = os.popen(allNetworks).read()
+    print("\n" + tColors.WARNING + command)
     print(tColors.WARNING + "-------------------------------- \n")
 
     selectWifi = input(tColors.OKBLUE + "Which Network ? \n" + tColors.OKBLUE + "\n>>> ")
@@ -96,16 +94,12 @@ def WinSystems():
         sleep(0.5)
         sys.exit()
 
-    checkFile = os.path.exists("/etc/NetworkManager/system-connections/" + selectWifi + ".nmconnection")
+    checkFile = os.path.exists("netsh wlan show profile name=" + selectWifi)
 
     if checkFile == True:
-        #  If there is such a file; By taking root permissions, we go to the required directory,
-        #  delete the 'psk =' value where the password is kept,
-        #  and by calling only the 16th line of the file with many lines, we only get the password.
         password = "netsh wlan show profile name=" + selectWifi + "key=clear"
-        passwordCommand = os.popen(password)
-        readPass = passwordCommand.read()
-        print("Password: " + readPass)
+        passwordCommand = os.popen(password).read()
+        print("Password: " + password)
         sleep(0.5)
         sys.exit()
     else:
