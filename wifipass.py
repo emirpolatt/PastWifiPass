@@ -10,10 +10,12 @@ Date: 22.06.2020
 
 """
 
-import os, sys, time
+import os, sys
 import pyfiglet
+from time import sleep
 
-assert ('linux' in sys.platform), "This script runs only Linux Systems"
+assert ('linux' or 'windows' in sys.platform), "This script runs only Linux and Windows Systems"
+
 
 # Class of the colors to be used on the terminal screen
 class tColors:
@@ -61,7 +63,7 @@ def LinuxSystems():
 
     if selectWifi == 'exit':
         print("Good bye")
-        time.sleep(0.5)
+        sleep(0.5)
         sys.exit()
 
     # We check if there is a file with the entered value -> selecWifi
@@ -75,10 +77,39 @@ def LinuxSystems():
         passwordCommand = os.popen(password)
         readPass = passwordCommand.read()
         print("Password: " + readPass)
-        time.sleep(0.5)
+        sleep(0.5)
         sys.exit()
     else:
         print(tColors.FAIL + "\n <<<<< No such file! Try again by typing 'run' >>>>>")
+
+def WinSystems():
+    allNetworks = "netsh wlan show profile key=clear"
+    command = os.popen(allNetworks)
+    readCommand = command.read()
+    print("\n" + tColors.WARNING + readCommand)
+    print(tColors.WARNING + "-------------------------------- \n")
+
+    selectWifi = input(tColors.OKBLUE + "Which Network ? \n" + tColors.OKBLUE + "\n>>> ")
+
+    if selectWifi == 'exit':
+        print("Good bye")
+        sleep(0.5)
+        sys.exit()
+
+    checkFile = os.path.exists("/etc/NetworkManager/system-connections/" + selectWifi + ".nmconnection")
+
+    if checkFile == True:
+        #  If there is such a file; By taking root permissions, we go to the required directory,
+        #  delete the 'psk =' value where the password is kept,
+        #  and by calling only the 16th line of the file with many lines, we only get the password.
+        password = "netsh wlan show profile name=" + selectWifi + "key=clear"
+        passwordCommand = os.popen(password)
+        readPass = passwordCommand.read()
+        print("Password: " + readPass)
+        sleep(0.5)
+        sys.exit()
+    else:
+        print(tColors.FAIL + "\n <<<<< No such Wifi Name! Try again by typing 'run' >>>>>")
 
 while True:
     runCommand = input(tColors.HEADER + ">> ")
@@ -88,7 +119,7 @@ while True:
 
     elif runCommand == 'exit':
         print("Good bye!")
-        time.sleep(0.5)
+        sleep(0.5)
         sys.exit()
 
     else:
@@ -97,5 +128,12 @@ while True:
 # Linux and Mac systems == 'posix', Windows == 'nt'
 if detectOs == 'posix':
     LinuxSystems()
+
+elif detectOs == "nt":
+    WinSystems()
+
+else:
+    sleep(0.5)
+    sys.exit(tColors.WARNING + "Coming Soon ...")
 
 
