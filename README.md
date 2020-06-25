@@ -9,7 +9,7 @@ If you want to support me, my door is always open ! :)
 - Wireless name
  
  ## Use ( Windows )
- - İnstall python3 
+ - Install python3 
  - Give the " python3 wifipass.py" command to terminal.
  - "Run" or "run"
  - Wireless Name
@@ -18,4 +18,6 @@ If you want to support me, my door is always open ! :)
  - An operating system ( Linux or Windows )
  - Python3 
  
+ ## Notes
+ - On Windows Systems, this script may not work properly sometimes.Windows user can support me in this regard.
  

@@ -1,9 +1,7 @@
 """
-This script finds your wifi passwords saved in the past on Linux Systems.
-This script currently only works on Linux Systems in v1 version.
-
-Note:
-    Pls run with "sudo"
+This script finds your wifi passwords saved in the past on Linux and Windows Systems.
+This script currently only works on Linux and Windows in v1 version but there might be some errors in windows systems.
+Runs smoothly on Linux.
 
 Author: Emir Polat
 Date: 22.06.2020
@@ -11,7 +9,7 @@ Date: 22.06.2020
 """
 
 import os, sys
-import pyfiglet
+from subprocess import check_output
 from time import sleep
 
 assert ('linux' or 'windows' in sys.platform), "This script runs only Linux and Windows Systems"
@@ -24,13 +22,13 @@ class tColors:
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     BOLD = '\033[1m'
-# Control the root user
-if not os.getuid() == 0:
-    sys.exit(tColors.FAIL + "Wifipass has to be run with root")
 
-def HelloMessage():
-    result = tColors.OKBLUE + pyfiglet.figlet_format("PastWIFIPass")
-    print(result)
+def banner():
+    print(tColors.OKBLUE+" ____           _ __        _____ _____ ___ ____ ")
+    print(tColors.OKBLUE+"|  _ \ __ _ ___| |\ \      / /_ _|  ___|_ _|  _ \ __ _ ___ ___  ")
+    print(tColors.OKBLUE+"| |_) / _` / __| __\ \ /\ / / | || |_   | || |_) / _` / __/ __| ")
+    print(tColors.OKBLUE+"|  __/ (_| \__ \ |_ \ V  V /  | ||  _|  | ||  __/ (_| \__ \__ \ ")
+    print(tColors.OKBLUE+"|_|   \__,_|___/\__| \_/\_/  |___|_|   |___|_|   \__,_|___/___/ ")
 
     description = tColors.OKGREEN + """
     This script finds your wifi passwords saved in the past(Only Linux and Windows Systems, V1).
@@ -43,7 +41,7 @@ def HelloMessage():
     """
     print(description)
 
-HelloMessage()
+banner()
 
 detectOs = os.name
 
@@ -82,9 +80,8 @@ def LinuxSystems():
         print(tColors.FAIL + "\n <<<<< No such file! Try again by typing 'run' >>>>>")
 
 def WinSystems():
-    allNetworks = "netsh wlan show profile key=clear"
-    command = os.popen(allNetworks).read()
-    print("\n" + tColors.WARNING + command)
+    allNetworks = check_output("netsh wlan show profile", shell=True)
+    print("\n" + tColors.WARNING + str(allNetworks))
     print(tColors.WARNING + "-------------------------------- \n")
 
     selectWifi = input(tColors.OKBLUE + "Which Network ? \n" + tColors.OKBLUE + "\n>>> ")
@@ -94,22 +91,24 @@ def WinSystems():
         sleep(0.5)
         sys.exit()
 
-    checkFile = os.path.exists("netsh wlan show profile name=" + selectWifi)
-
-    if checkFile == True:
-        password = "netsh wlan show profile name=" + selectWifi + "key=clear"
-        passwordCommand = os.popen(password).read()
-        print("Password: " + password)
-        sleep(0.5)
-        sys.exit()
-    else:
-        print(tColors.FAIL + "\n <<<<< No such Wifi Name! Try again by typing 'run' >>>>>")
+    passwordCommand = check_output("netsh wlan show profile name="+ selectWifi +" key=clear", shell=True)
+    print("Password: " + str(passwordCommand))
+    sleep(0.5)
+    sys.exit()
 
 while True:
     runCommand = input(tColors.HEADER + ">> ")
 
     if runCommand == "Run" or runCommand == "run":
-        LinuxSystems()
+        # Linux and Mac systems = 'posix', Windows Systems = 'nt'
+        if detectOs == 'posix':
+            LinuxSystems()
+        elif detectOs == 'nt':
+            WinSystems()
+        else:
+            print("Coming Soon ...")
+            sleep(0.5)
+            sys.exit()
 
     elif runCommand == 'exit':
         print("Good bye!")
@@ -118,16 +117,5 @@ while True:
 
     else:
         print("You have logged in incorrectly. Please enter run command only")
-
-# Linux and Mac systems == 'posix', Windows == 'nt'
-if detectOs == 'posix':
-    LinuxSystems()
-
-elif detectOs == "nt":
-    WinSystems()
-
-else:
-    sleep(0.5)
-    sys.exit(tColors.WARNING + "Coming Soon ...")
 
 
